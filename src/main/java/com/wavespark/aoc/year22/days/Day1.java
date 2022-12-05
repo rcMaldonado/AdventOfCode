@@ -1,5 +1,7 @@
 package com.wavespark.aoc.year22.days;
 
+import com.wavespark.aoc.utils.FileReader;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -11,16 +13,18 @@ import java.util.List;
 
 public class Day1 {
 
-    private static final String fileName = "year2022/day1.txt";
+    private static final String fileName = "day1.txt";
 
     public static void main(String[] args) {
         System.out.println("Day 1");
+        FileReader fileReader = new FileReader();
         Day1 app = new Day1();
 
         //Part 1
         System.out.println("getResourceAsStream : " + fileName);
-        InputStream calorieStream = app.getFileFromResourceAsStream(fileName);
-        List<Integer> elvesTotalHoldingCalories = app.readInputStream(calorieStream);
+        InputStream calorieStream = fileReader.getFileFromResourceAsStream(fileName);
+        List<String> calorieContent = fileReader.ReadFileContent(calorieStream);
+        List<Integer> elvesTotalHoldingCalories = app.calculateTotalCaloriesPerElf(calorieContent);
 
         int highestCalorieHolding = app.elfWithHighestCalorieHolding(elvesTotalHoldingCalories);
         System.out.println(highestCalorieHolding);
@@ -30,43 +34,21 @@ public class Day1 {
         System.out.println(sumOfThreeHoldingCalories);
     }
 
-    private InputStream getFileFromResourceAsStream(String fileName) {
-
-        // The class loader that loaded the class
-        ClassLoader classLoader = getClass().getClassLoader();
-        InputStream inputStream = classLoader.getResourceAsStream(fileName);
-
-        // the stream holding the file content
-        if (inputStream == null) {
-            throw new IllegalArgumentException("file not found! " + fileName);
-        } else {
-            return inputStream;
-        }
-
-    }
-
-    private List<Integer> readInputStream(InputStream is) {
+    private List<Integer> calculateTotalCaloriesPerElf(List<String> calorieContent) {
         List<Integer> elvesHoldingCalories = new ArrayList<Integer>();
 
-        try (InputStreamReader streamReader = new InputStreamReader(is, StandardCharsets.UTF_8); BufferedReader reader = new BufferedReader(streamReader)) {
-                int holdingCalories = 0;
+        int holdingCalories = 0;
 
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    if(line.isEmpty() == true) {
-                        elvesHoldingCalories.add(holdingCalories);
-                        holdingCalories = 0;
+        for(String calories: calorieContent) {
+            if(calories.isEmpty() == true) {
+                elvesHoldingCalories.add(holdingCalories);
+                holdingCalories = 0;
 
-                    } else {
-                        int calories = Integer.parseInt(line);
-                        holdingCalories += calories;
-                    }
-                }
-
-
-            } catch(IOException e){
-                e.printStackTrace();
+            } else {
+                int elfCalories = Integer.parseInt(calories);
+                holdingCalories += elfCalories;
             }
+        }
 
         return elvesHoldingCalories;
     }
